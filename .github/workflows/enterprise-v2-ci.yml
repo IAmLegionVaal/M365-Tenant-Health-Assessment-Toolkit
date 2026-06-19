@@ -63,11 +63,11 @@ jobs:
           Invoke-Pester -Configuration $configuration
 
       - name: Run synthetic tenant assessment
-        shell: powershell
+        shell: pwsh
         run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Invoke-M365TenantHealthV2.ps1 -OutputPath .\artifacts\ci-assessment
-          if (-not (Test-Path .\artifacts\ci-assessment\assessment.json)) { throw 'assessment.json missing.' }
-          if (-not (Test-Path .\artifacts\ci-assessment\findings.csv)) { throw 'findings.csv missing.' }
+          ./Invoke-M365TenantHealthV2.ps1 -OutputPath ./artifacts/ci-assessment
+          if (-not (Test-Path ./artifacts/ci-assessment/assessment.json)) { throw 'assessment.json missing.' }
+          if (-not (Test-Path ./artifacts/ci-assessment/findings.csv)) { throw 'findings.csv missing.' }
 
       - name: Upload validation evidence
         if: always()
