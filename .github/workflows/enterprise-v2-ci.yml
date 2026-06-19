@@ -1,0 +1,80 @@
+name: Enterprise v2 CI
+
+on:
+  push:
+    branches:
+      - main
+      - upgrade/**
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install test dependencies
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -MinimumVersion 5.5.0 -Scope CurrentUser -Force -SkipPublisherCheck
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+
+      - name: Validate module manifest
+        shell: pwsh
+        run: Test-ModuleManifest ./modules/M365Health/M365Health.psd1 -ErrorAction Stop
+
+      - name: Parse PowerShell files
+        shell: pwsh
+        run: |
+          $errors = @()
+          Get-ChildItem -Path . -Recurse -Include *.ps1,*.psm1,*.psd1 | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors)
+            if ($parseErrors) { $errors += $parseErrors }
+          }
+          $errors | Format-Table -AutoSize
+          if ($errors.Count -gt 0) { throw "Parser returned $($errors.Count) error(s)." }
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path ./modules/M365Health -Recurse -Severity Error,Warning
+          $results | Format-Table -AutoSize
+          if ($results.Count -gt 0) { throw "PSScriptAnalyzer returned $($results.Count) finding(s)." }
+
+      - name: Run Pester
+        shell: pwsh
+        run: |
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = './tests'
+          $configuration.Run.Exit = $true
+          $configuration.Output.Verbosity = 'Detailed'
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputPath = 'test-results.xml'
+          Invoke-Pester -Configuration $configuration
+
+      - name: Run synthetic tenant assessment
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Invoke-M365TenantHealthV2.ps1 -OutputPath .\artifacts\ci-assessment
+          if (-not (Test-Path .\artifacts\ci-assessment\assessment.json)) { throw 'assessment.json missing.' }
+          if (-not (Test-Path .\artifacts\ci-assessment\findings.csv)) { throw 'findings.csv missing.' }
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m365-health-v2-validation
+          path: |
+            test-results.xml
+            artifacts/ci-assessment/
+          if-no-files-found: warn
