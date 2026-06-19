@@ -1,7 +1,7 @@
 @{
-    RootModule        = 'M365Health.psm1'
-    NestedModules     = @('M365Health.Connection.psm1','M365Health.Comparison.psm1')
-    ModuleVersion     = '2.2.0'
+    RootModule        = ''
+    NestedModules     = @('M365Health.psm1','M365Health.Connection.psm1','M365Health.Comparison.psm1')
+    ModuleVersion     = '2.2.1'
     GUID              = '88306af2-c086-4f03-a540-859f68f8f7ac'
     Author            = 'Dewald Pretorius'
     CompanyName       = 'Community'
