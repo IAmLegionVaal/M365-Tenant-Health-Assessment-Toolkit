@@ -1,0 +1,20 @@
+{
+  "Classification": "SIMULATED PORTFOLIO DATA",
+  "TenantName": "contoso-lab.onmicrosoft.com",
+  "Identity": {
+    "MfaRegistrationPercent": 68,
+    "LegacyAuthenticationAllowed": true,
+    "ConditionalAccessPolicyCount": 0,
+    "PermanentGlobalAdmins": 6
+  },
+  "Exchange": {
+    "DkimEnabled": false,
+    "ExternalForwardingMailboxCount": 3
+  },
+  "SharePoint": {
+    "AnonymousLinksAllowed": true
+  },
+  "Teams": {
+    "AnonymousMeetingJoinAllowed": true
+  }
+}
