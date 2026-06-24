@@ -1,0 +1,35 @@
+{
+  "classification": "PUBLIC CONFIGURATION DOCUMENTATION",
+  "microsoftGraph": {
+    "delegatedScopes": [
+      "Organization.Read.All",
+      "Policy.Read.All",
+      "Directory.Read.All",
+      "RoleManagement.Read.Directory",
+      "Reports.Read.All"
+    ],
+    "appOnlyApplicationPermissions": [
+      "Organization.Read.All",
+      "Policy.Read.All",
+      "Directory.Read.All",
+      "RoleManagement.Read.Directory",
+      "Reports.Read.All"
+    ],
+    "notes": [
+      "Application permissions require administrator consent.",
+      "Use a dedicated app registration and certificate-based authentication.",
+      "Do not store certificates, private keys, tokens, or tenant secrets in the repository."
+    ]
+  },
+  "optionalWorkloads": {
+    "exchangeOnline": [
+      "View-Only Organization Management or another approved read-only role"
+    ],
+    "sharePointOnline": [
+      "SharePoint administrator read access for tenant settings"
+    ],
+    "microsoftTeams": [
+      "Teams administrator or another approved role able to read policy configuration"
+    ]
+  }
+}
